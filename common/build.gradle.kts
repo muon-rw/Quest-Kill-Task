@@ -1,6 +1,5 @@
 import dev.muon.questkilltask.gradle.Properties
 import dev.muon.questkilltask.gradle.Versions
-import me.modmuss50.mpp.PublishModTask
 
 plugins {
     id("conventions.common")
@@ -53,9 +52,7 @@ dependencies {
     annotationProcessor("io.github.llamalad7:mixinextras-common:${Versions.MIXIN_EXTRAS}")
     compileOnly("net.fabricmc:sponge-mixin:${Versions.FABRIC_MIXIN}")
 
-    implementation("dev.ftb.mods:ftb-quests:${Versions.FTB_QUESTS}")
-    implementation("dev.ftb.mods:ftb-library:${Versions.FTB_LIBRARY}")
-    implementation("dev.ftb.mods:ftb-teams:${Versions.FTB_TEAMS}")
+    //compileOnly("io.wispforest:accessories-common:${Versions.ACCESSORIES}-mojmap")
 }
 
 configurations {

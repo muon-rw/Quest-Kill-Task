@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 public class QuestKillTask {
     public static final String MOD_ID = "questkilltask";
-    public static final String MOD_NAME = "Example Mod";
+    public static final String MOD_NAME = "Quest Kill Task";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
 
     private static ExamplePlatformHelper helper;

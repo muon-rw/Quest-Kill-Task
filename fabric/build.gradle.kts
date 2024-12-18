@@ -74,14 +74,16 @@ loom {
             configName = "Fabric Client"
             setSource(sourceSets["test"])
             ideConfigGenerated(true)
-            vmArgs("-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true")
+            vmArgs("-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true",
+                "-Dfabric.log.level=debug" )
         }
         named("server") {
             server()
             configName = "Fabric Server"
             setSource(sourceSets["test"])
             ideConfigGenerated(true)
-            vmArgs("-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true")
+            vmArgs("-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true",
+                "-Dfabric.log.level=debug" )
         }
         register("datagen") {
             server()

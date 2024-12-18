@@ -4,9 +4,11 @@
   "package": "dev.muon.questkilltask.mixin",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "FTBQuestsEventHandlerMixin",
+    "ServerQuestFileMixin"
+  ],
   "client": [
-    "client.Mixin_TitleScreen"
   ],
   "server": [],
   "injectors": {

@@ -23,7 +23,9 @@ object Versions {
 
     const val JAVA = 21
 
-    const val FTB_QUESTS = "2101.1.1"
-    const val FTB_TEAMS = "2101.1.1"
-    const val FTB_LIBRARY = "2101.1.6"
+    const val FTB_QUESTS = "2101.1.0"
+    const val FTB_TEAMS = "2101.1.0"
+    const val FTB_LIBRARY = "2101.1.4"
+
+    const val ACCESSORIES = "1.1.0-beta.7+1.21.1"
 }

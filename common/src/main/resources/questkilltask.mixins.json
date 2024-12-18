@@ -4,9 +4,10 @@
   "package": "dev.muon.questkilltask.mixin",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "LivingEntityMixin"
+  ],
   "client": [
-    "client.Mixin_Minecraft"
   ],
   "server": [],
   "injectors": {
