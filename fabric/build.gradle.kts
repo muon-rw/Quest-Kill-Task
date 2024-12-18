@@ -1,5 +1,5 @@
-import house.greenhouse.examplemod.gradle.Properties
-import house.greenhouse.examplemod.gradle.Versions
+import dev.muon.questkilltask.gradle.Properties
+import dev.muon.questkilltask.gradle.Versions
 import net.fabricmc.loom.task.RemapJarTask
 import org.gradle.jvm.tasks.Jar
 
@@ -10,11 +10,37 @@ plugins {
 }
 
 repositories {
+    maven("https://maven.blamejared.com/")
+    maven("https://maven.wispforest.io/releases")
+    maven("https://maven.su5ed.dev/releases")
+    maven("https://maven.fabricmc.net")
+    maven("https://maven.shedaniel.me/")
+    maven("https://maven.terraformersmc.com/")
+    maven("https://maven.ladysnake.org/releases")
+    maven("https://maven.parchmentmc.org")
+    maven("https://cursemaven.com")
+    maven("https://api.modrinth.com/maven")
     maven {
-        name = "TerraformersMC"
-        url = uri("https://maven.terraformersmc.com/")
+        url = uri("https://cursemaven.com")
+        content {
+            includeGroup("curse.maven")
+        }
+    }
+    maven {
+        url = uri("https://api.modrinth.com/maven")
+        content {
+            includeGroup("maven.modrinth")
+        }
+    }
+    maven {
+        url = uri("https://maven.saps.dev/releases")
+        content {
+            includeGroup("dev.latvian.mods")
+            includeGroup("dev.ftb.mods")
+        }
     }
 }
+
 
 dependencies {
     minecraft("com.mojang:minecraft:${Versions.MINECRAFT}")
@@ -23,6 +49,10 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${Versions.FABRIC_LOADER}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${Versions.FABRIC_API}")
     modLocalRuntime("com.terraformersmc:modmenu:${Versions.MOD_MENU}")
+
+    modImplementation("dev.ftb.mods:ftb-quests-fabric:${Versions.FTB_QUESTS}")
+    modImplementation("dev.ftb.mods:ftb-library-fabric:${Versions.FTB_LIBRARY}")
+    modImplementation("dev.ftb.mods:ftb-teams-fabric:${Versions.FTB_TEAMS}")
 }
 
 loom {

@@ -1,5 +1,5 @@
-import house.greenhouse.examplemod.gradle.Properties
-import house.greenhouse.examplemod.gradle.Versions
+import dev.muon.questkilltask.gradle.Properties
+import dev.muon.questkilltask.gradle.Versions
 
 plugins {
     base

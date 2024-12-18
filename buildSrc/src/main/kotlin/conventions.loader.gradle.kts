@@ -1,4 +1,4 @@
-import house.greenhouse.examplemod.gradle.Properties
+import dev.muon.questkilltask.gradle.Properties
 
 plugins {
     id("conventions.common")

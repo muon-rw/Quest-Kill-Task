@@ -1,5 +1,5 @@
-import house.greenhouse.examplemod.gradle.Properties
-import house.greenhouse.examplemod.gradle.Versions
+import dev.muon.questkilltask.gradle.Properties
+import dev.muon.questkilltask.gradle.Versions
 import me.modmuss50.mpp.PublishModTask
 
 plugins {
@@ -12,6 +12,24 @@ sourceSets {
     create("generated") {
         resources {
             srcDir("src/generated/resources")
+        }
+    }
+}
+
+repositories {
+    maven("https://maven.blamejared.com/")
+    maven("https://maven.wispforest.io/releases")
+    maven("https://maven.su5ed.dev/releases")
+    maven("https://maven.fabricmc.net")
+    maven("https://maven.shedaniel.me/")
+    maven("https://maven.terraformersmc.com/")
+    maven("https://maven.ladysnake.org/releases")
+    maven("https://maven.parchmentmc.org")
+    maven {
+        url = uri("https://maven.saps.dev/releases")
+        content {
+            includeGroup("dev.latvian.mods")
+            includeGroup("dev.ftb.mods")
         }
     }
 }
@@ -34,6 +52,10 @@ dependencies {
     compileOnly("io.github.llamalad7:mixinextras-common:${Versions.MIXIN_EXTRAS}")
     annotationProcessor("io.github.llamalad7:mixinextras-common:${Versions.MIXIN_EXTRAS}")
     compileOnly("net.fabricmc:sponge-mixin:${Versions.FABRIC_MIXIN}")
+
+    implementation("dev.ftb.mods:ftb-quests:${Versions.FTB_QUESTS}")
+    implementation("dev.ftb.mods:ftb-library:${Versions.FTB_LIBRARY}")
+    implementation("dev.ftb.mods:ftb-teams:${Versions.FTB_TEAMS}")
 }
 
 configurations {
