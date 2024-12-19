@@ -1,13 +1,14 @@
 package dev.muon.questkilltask.platform;
 
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.FMLLoader;
 
-public class ExamplePlatformHelperNeoForge implements ExamplePlatformHelper {
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLLoader;
+
+public class ForgePlatformHelper implements ExamplePlatformHelper {
 
     @Override
     public Platform getPlatform() {
-        return Platform.NEOFORGE;
+        return Platform.FORGE;
     }
 
     @Override

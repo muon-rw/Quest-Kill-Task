@@ -2,7 +2,8 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.muon.questkilltask.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "refmap": "questkilltask.refmap.json",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "FTBQuestsEventHandlerMixin",
     "ServerQuestFileMixin"

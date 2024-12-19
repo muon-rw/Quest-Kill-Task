@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'fabric-loom'
+    id 'maven-publish'
+    id "com.github.breadmoirai.github-release" version "2.4.1"
+}
+
+archivesBaseName = "${mod_name}"
+version = "${rootProject.version}+${minecraft_version}-common"
+
+repositories {
+    maven {
+        name = 'Sponge / Mixin'
+        url = 'https://repo.spongepowered.org/repository/maven-public/'
+    }
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
+    mavenCentral()
+    mavenLocal()
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/questkilltask.common.accesswidener")
+    mixin {
+        useLegacyMixinAp = true
+        defaultRefmapName.set("questkilltask.refmap.json")
+    }
+}
+
+dependencies {
+    // Minecraft
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
+    }
+
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
+    compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
+    compileOnly group: 'org.ow2.asm', name: 'asm-tree', version: '9.4'
+
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            artifact jar
+            artifact sourcesJar
+        }
+    }
+
+    repositories {
+        maven {
+            name = "greenhouse"
+            url = "https://maven.greenhouseteam.dev/releases"
+            credentials {
+                username System.getenv('MAVEN_USERNAME')
+                password System.getenv('MAVEN_PASSWORD')
+            }
+            authentication {
+                create("basic", BasicAuthentication)
+            }
+        }
+        mavenLocal()
+    }
+}

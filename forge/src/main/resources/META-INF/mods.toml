@@ -1,0 +1,40 @@
+modLoader = "javafml"
+loaderVersion = "[43,)"
+license = "ARR"
+
+[[mods]]
+modId = "questkilltask"
+version = "${version}"
+displayName = "Quest Kill Task"
+refmapName="questkilltask.refmap.json"
+logoFile = "icon.png"
+credits = ""
+authors = "MuonR"
+description = 'Improvements for the FTB Quests Kill Task'
+
+[[mixins]]
+config = "questkilltask.mixins.json"
+
+[[mixins]]
+config = "questkilltask.forge.mixins.json"
+
+[[dependencies.questkilltask]] #optional
+modId = "forge" #mandatory
+mandatory = true #mandatory
+versionRange = "[47.1,)" #mandatory
+ordering = "NONE" # The order that this dependency should load in relation to your mod, required to be either 'BEFORE' or 'AFTER' if the dependency is not mandatory
+side = "BOTH" # Side this dependency is applied on - 'BOTH', 'CLIENT' or 'SERVER'
+[[dependencies.questkilltask]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1]"
+ordering = "NONE"
+side = "BOTH"
+[[dependencies.questkilltask]]
+modId = "ftbquests"
+mandatory = false
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"
+
+

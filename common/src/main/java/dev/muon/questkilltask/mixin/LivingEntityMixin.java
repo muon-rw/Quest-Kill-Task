@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(LivingEntity.class)
+@Mixin(value = LivingEntity.class)
 public class LivingEntityMixin {
     @Inject(method = "hurt", at = @At("HEAD"))
     private void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
@@ -52,7 +52,7 @@ public class LivingEntityMixin {
             return;
         }
 
-        MobEffect effect = effectInstance.getEffect().value();
+        MobEffect effect = effectInstance.getEffect();
         boolean isEffectivelyBeneficial = isEffectBeneficialForTarget(effect, target);
 
         if (isEffectivelyBeneficial) {

@@ -1,0 +1,218 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
+buildscript {
+    repositories {
+        maven { url 'https://maven.minecraftforge.net' }
+        maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'https://maven.parchmentmc.org' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '6.+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'eclipse'
+    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'maven-publish'
+    id "net.darkhax.curseforgegradle" version "1.0.7"
+    id "com.modrinth.minotaur" version "2.+"
+}
+
+archivesBaseName = "${mod_name}"
+version = "${rootProject.version}+${minecraft_version}-forge"
+
+jarJar.enable()
+
+repositories {
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven { url "https://maven.parchmentmc.org" }
+    maven { url "https://maven.blamejared.com" }
+    maven { url "https://maven.shedaniel.me" }
+    maven { url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven" }
+    }
+    maven {
+        url = uri("https://maven.saps.dev/releases")
+        content {
+            includeGroup("dev.latvian.mods")
+            includeGroup("dev.ftb.mods")
+        }
+    }
+
+    mavenCentral()
+    mavenLocal()
+}
+
+mixin {
+    add sourceSets.main, "questkilltask.refmap.json"
+    config "${mod_id}.mixins.json"
+    config "${mod_id}.forge.mixins.json"
+}
+
+minecraft {
+    mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
+    accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Client'
+            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}.forge.mixins.json", "--username", "Dev2"
+            mods {
+                create(mod_id) {
+                    source sourceSets.main
+                    source sourceSets.test
+                    source project(":common").sourceSets.main
+                    source project(":common").sourceSets.test
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Server'
+            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}.forge.mixins.json"
+            mods {
+                create(mod_id) {
+                    source sourceSets.main
+                    source sourceSets.test
+                    source project(":common").sourceSets.main
+                    source project(":common").sourceSets.test
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            taskName 'Data'
+            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}.forge.mixins.json"
+            mods {
+                create(mod_id) {
+                    source sourceSets.main
+                    source project(":common").sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources.srcDir 'src/generated/resources'
+
+dependencies {
+    // Forge
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // Mixin
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixin_extras_version}")) {
+        jarJar.ranged(it, "[${mixin_extras_version},)")
+    }
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    // Common Project
+    implementation project(":common")
+
+    implementation fg.deobf("dev.ftb.mods:ftb-quests-forge:${ftb_quests_version}")
+    implementation fg.deobf("dev.ftb.mods:ftb-library-forge:${ftb_library_version}")
+    implementation fg.deobf("dev.ftb.mods:ftb-teams-forge:${ftb_teams_version}")
+    implementation fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
+
+}
+
+tasks.withType(JavaCompile) {
+    source(project(":common").sourceSets.main.allSource)
+}
+
+processResources {
+    from project(':common').sourceSets.main.resources
+    exclude "questkilltask.common.accesswidener"
+
+    inputs.property 'version', project.version
+
+    filesMatching('META-INF/mods.toml') {
+        expand 'version': project.version
+    }
+}
+
+processTestResources {
+    outputs.upToDateWhen { false }
+    from project(":common").sourceSets.test.resources
+
+    filesMatching('META-INF/mods.toml') {
+        expand 'version': project.version
+    }
+}
+
+tasks.jarJar.configure {
+    archiveClassifier = ""
+    dependsOn('reobfJar')
+}
+
+reobf {
+    jarJar {}
+}
+
+jar.finalizedBy('reobfJarJar')
+
+tasks.withType(AbstractPublishToMaven) {
+    dependsOn('jarJar')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            artifact jar
+        }
+    }
+
+    repositories {
+        maven {
+            name = "greenhouse"
+            url = "https://maven.greenhouseteam.dev/releases"
+            credentials {
+                username System.getenv('MAVEN_USERNAME')
+                password System.getenv('MAVEN_PASSWORD')
+            }
+            authentication {
+                create("basic", BasicAuthentication)
+            }
+        }
+        mavenLocal()
+    }
+}
+
+task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    apiToken = System.getenv("CF_TOKEN")
+
+    def mainFile = upload(897171, jar)
+    mainFile.displayName = "Forge/Neoforge-${rootProject.version}+${minecraft_version}"
+    mainFile.releaseType = "release"
+    mainFile.changelog = new File("$project.rootDir/CHANGELOG.md").getText('UTF-8')
+    mainFile.changelogType = "markdown"
+    forge_mod_loaders.split(", ").each {
+        mainFile.addModLoader(it)
+    }
+    forge_game_versions.split(", ").each {
+        mainFile.addGameVersion(it)
+    }
+    mainFile.addRequirement("ftb-quests-forge")
+}
+

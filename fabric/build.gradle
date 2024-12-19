@@ -1,0 +1,162 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
+plugins {
+    id 'fabric-loom'
+    id 'maven-publish'
+    id 'idea'
+    id "net.darkhax.curseforgegradle" version "1.0.7"
+    id "com.modrinth.minotaur" version "2.+"
+}
+
+archivesBaseName = "${mod_name}"
+version = "${rootProject.version}+${minecraft_version}-fabric"
+
+
+loom {
+    mixin.defaultRefmapName = "questkilltask.refmap.json"
+
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+    }
+}
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven { url "https://maven.shedaniel.me" }
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = "https://cursemaven.com"
+            }
+        }
+        filter {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
+        url = uri("https://maven.saps.dev/releases")
+        content {
+            includeGroup("dev.latvian.mods")
+            includeGroup("dev.ftb.mods")
+        }
+    }
+
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    //Minecraft
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
+    }
+    //Fabric
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}"))
+    implementation(annotationProcessor("net.fabricmc:sponge-mixin:0.13.3+mixin.0.8.5"))
+
+    implementation project(path: ":common", configuration: "namedElements")
+
+    modImplementation("dev.ftb.mods:ftb-quests-fabric:${ftb_quests_version}")
+    modImplementation("dev.ftb.mods:ftb-library-fabric:${ftb_library_version}")
+    modImplementation("dev.ftb.mods:ftb-teams-fabric:${ftb_teams_version}")
+
+}
+
+processResources {
+    from project(":common").sourceSets.main.resources
+    exclude "questkilltask.common.accesswidener"
+
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand(
+                "mod_version": rootProject.version,
+                "mod_id": mod_id,
+                "mod_name": mod_name,
+                "mod_description": mod_description,
+                "mod_author": mod_author,
+                "fabric_mod_contributors": fabric_mod_contributors,
+                "modrinth_page": modrinth_page,
+                "sources": sources,
+                "mod_license": mod_license,
+                "fabric_loader_range": fabric_loader_range,
+                "fabric_minecraft_version_range": fabric_minecraft_version_range,
+                "java_version": java_version,
+                "curseforge_page": curseforge_page,
+                "minecraft_version": minecraft_version
+        )
+    }
+}
+
+processTestResources {
+    outputs.upToDateWhen { false }
+    from project(":common").sourceSets.test.resources
+}
+
+tasks.withType(JavaCompile) {
+    source(project(":common").sourceSets.main.allSource)
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name = "greenhouse"
+            url = "https://maven.greenhouseteam.dev/releases"
+            credentials {
+                username System.getenv('MAVEN_USERNAME')
+                password System.getenv('MAVEN_PASSWORD')
+            }
+            authentication {
+                create("basic", BasicAuthentication)
+            }
+        }
+        mavenLocal()
+    }
+}
+
+task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    apiToken = System.getenv("CF_TOKEN")
+    //debugMode = true
+    def mainFile = upload(897171, remapJar)
+    mainFile.changelog = new File("$project.rootDir/CHANGELOG.md").getText('UTF-8')
+    mainFile.changelogType = "markdown"
+    mainFile.releaseType = "release"
+    mainFile.addGameVersion("1.20.1")
+    mainFile.addModLoader("fabric")
+    mainFile.displayName = "Fabric-${rootProject.version}+${minecraft_version}"
+    mainFile.addRequirement("ftb-quests-fabric")
+}
