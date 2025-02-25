@@ -7,20 +7,17 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class QuestProcessor {
+    // TODO: Clean this up, some duplicate logic happening
     private static List<KillTask> killTasks;
 
-    public QuestProcessor(List<KillTask> killTasks) {
-        QuestProcessor.killTasks = null;
+    public QuestProcessor() {
     }
 
-    public static void invalidateKillTasks() {
-        killTasks = null;  // Clear the cache
+    public static void markDirty() {
+        killTasks = null;
     }
 
     private void initKillTasks() {
@@ -34,7 +31,9 @@ public class QuestProcessor {
             return false;
         }
 
-        initKillTasks();
+        if (killTasks == null && ServerQuestFile.INSTANCE != null) {
+            killTasks = ServerQuestFile.INSTANCE.collect(KillTask.class);
+        }
 
         if (killTasks == null || killTasks.isEmpty()) {
             return false;
@@ -54,27 +53,20 @@ public class QuestProcessor {
     public ServerQuestFile getQuestFile() {
         ServerQuestFile questFile = ServerQuestFile.INSTANCE;
         if (questFile == null) {
+            QuestKillTask.LOG.warn("Could not get Server Quest File instance!");
             return null;
         }
 
         initKillTasks();
         if (killTasks == null || killTasks.isEmpty()) {
+            QuestKillTask.LOG.warn("No kill tasks were present in the current quest file!");
             return null;
         }
 
         return questFile;
     }
 
-    public TeamData getKillerTeam(DamageSource source, ServerQuestFile questFile) {
-        if (!(source.getEntity() instanceof ServerPlayer killer)) {
-            return null;
-        }
-
-        TeamData killerTeam = questFile.getOrCreateTeamData(killer);
-        return killerTeam;
-    }
-
-    public void processDamagingTeams(LivingEntity entity, ServerQuestFile questFile, TeamData killerTeam) {
+    public void processDamagingTeams(LivingEntity entity, ServerQuestFile questFile) {
         Set<UUID> processedTeams = new HashSet<>();
         DamageTracker.KillContributors contributors = DamageTracker.getKillContributors(entity);
 
@@ -84,19 +76,19 @@ public class QuestProcessor {
         allContributors.addAll(contributors.tanks());
 
         for (UUID playerUUID : allContributors) {
-            processPlayerContribution(playerUUID, entity, questFile, killerTeam, processedTeams);
+            processPlayerContribution(playerUUID, entity, questFile, processedTeams);
         }
     }
 
     private void processPlayerContribution(UUID playerUUID, LivingEntity entity, ServerQuestFile questFile,
-                                           TeamData killerTeam, Set<UUID> processedTeams) {
+                                           Set<UUID> processedTeams) {
         ServerPlayer player = questFile.server.getPlayerList().getPlayer(playerUUID);
         if (player == null) {
             return;
         }
 
         TeamData playerTeam = questFile.getOrCreateTeamData(player);
-        if (!isValidTeam(playerTeam, killerTeam)) {
+        if (!isValidTeam(playerTeam)) {
             return;
         }
 
@@ -107,19 +99,10 @@ public class QuestProcessor {
         updateTeamKillTasks(playerTeam, entity);
     }
 
-    private boolean isValidTeam(TeamData playerTeam, TeamData killerTeam) {
+    private boolean isValidTeam(TeamData playerTeam) {
         if (playerTeam == null || playerTeam.isLocked()) {
             return false;
         }
-
-        // We override the logic for now
-        /*
-        if (killerTeam != null && killerTeam.getTeamId().equals(playerTeam.getTeamId())) {
-            QuestKillTask.LOG.info("Skipping killer's team (will be handled by original logic)");
-            return false;
-        }
-        */
-
         return true;
     }
 

@@ -6,6 +6,7 @@ import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.quest.task.KillTask;
 import dev.muon.questkilltask.DamageTracker;
+import dev.muon.questkilltask.QuestKillTask;
 import dev.muon.questkilltask.QuestProcessor;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,15 +21,13 @@ import java.util.List;
 
 @Mixin(value = FTBQuestsEventHandler.class, remap = false)
 public class FTBQuestsEventHandlerMixin {
-    @Shadow(remap = false)
-    private List<KillTask> killTasks;
-
     @Unique
     private QuestProcessor questKillTask$questProcessor;
 
     /**
-     * Replaces the original playerKill method with enhanced functionality.
+     * Completely replaces the original playerKill method with enhanced functionality.
      * This implementation adds support for:
+     * - Team-based kill credit
      * - Healing/Support credit
      * - Tank/Damage-taken credit
      * - Potion/Effect tracking
@@ -37,10 +36,14 @@ public class FTBQuestsEventHandlerMixin {
      * It's unlikely other mods interact with this task.
      * This can be rewritten if issues arise.
      */
+
+    // TODO: Clean up, some duplicate logic is being run
     @Inject(method = "playerKill", at = @At("HEAD"), cancellable = true)
     private void onPlayerKill(LivingEntity entity, DamageSource source, CallbackInfoReturnable<EventResult> cir) {
+        if ((entity.level().isClientSide) || (source.getEntity() != null && source.getEntity().level().isClientSide)) return;
+
         if (questKillTask$questProcessor == null) {
-            questKillTask$questProcessor = new QuestProcessor(killTasks);
+            questKillTask$questProcessor = new QuestProcessor();
         }
 
         if (!questKillTask$questProcessor.shouldProcessKill(entity)) {
@@ -50,12 +53,12 @@ public class FTBQuestsEventHandlerMixin {
 
         ServerQuestFile questFile = questKillTask$questProcessor.getQuestFile();
         if (questFile == null) {
+            QuestKillTask.LOG.warn("Unable to retrieve Server Quest File!");
             cir.setReturnValue(EventResult.pass());
             return;
         }
 
-        TeamData killerTeam = questKillTask$questProcessor.getKillerTeam(source, questFile);
-        questKillTask$questProcessor.processDamagingTeams(entity, questFile, killerTeam);
+        questKillTask$questProcessor.processDamagingTeams(entity, questFile);
 
         DamageTracker.clearEntityTracking(entity);
         cir.setReturnValue(EventResult.pass());
