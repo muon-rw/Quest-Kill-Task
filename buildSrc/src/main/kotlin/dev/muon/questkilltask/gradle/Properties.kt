@@ -8,12 +8,12 @@ object Properties {
     const val MOD_AUTHOR = "MuonR"
     val MOD_CONTRIBUTORS = listOf("MuonR")
     const val DESCRIPTION = "Adjust the Kill Task for FTB Quests"
-    const val LICENSE = "MPL-2.0"
+    const val LICENSE = "GNU GPL v3.0"
 
-    const val CURSEFORGE_PAGE = "https://www.curseforge.com/minecraft/mc-mods/curseforge-project"
-    const val CURSEFORGE_PROJECT_ID = "000000"
+    const val CURSEFORGE_PAGE = "https://www.curseforge.com/minecraft/mc-mods/quests-kill-task-tweaks"
+    const val CURSEFORGE_PROJECT_ID = "1161828"
     const val MODRINTH_PAGE = "https://modrinth.com/mod/modrinth-project"
     const val MODRINTH_PROJECT_ID = "????????"
-    const val GITHUB_REPO = "GreenhouseModding/greenhouse-multiloader-template"
+    const val GITHUB_REPO = "/muon-rw/Quest-Kill-Task"
     const val GITHUB_COMMITISH = Versions.MINECRAFT
 }

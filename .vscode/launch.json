@@ -1,4 +1,49 @@
 {
   "version": "0.2.0",
-  "configurations": []
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "NeoForge Client (:neoforge)",
+      "presentation": {
+        "group": "Mod Development - neoforge",
+        "order": 0
+      },
+      "projectName": "neoforge",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\renpi\\IdeaProjects\\Quest-Kill-Task\\neoforge\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\renpi\\IdeaProjects\\Quest-Kill-Task\\neoforge\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dquestkilltask%%C:\\Users\\renpi\\IdeaProjects\\Quest-Kill-Task\\neoforge\\bin\\main;questkilltask%%C:\\Users\\renpi\\IdeaProjects\\Quest-Kill-Task\\neoforge\\bin\\test"
+      ],
+      "cwd": "${workspaceFolder}\\neoforge\\runs\\client",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "NeoForge Server (:neoforge)",
+      "presentation": {
+        "group": "Mod Development - neoforge",
+        "order": 1
+      },
+      "projectName": "neoforge",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\renpi\\IdeaProjects\\Quest-Kill-Task\\neoforge\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\renpi\\IdeaProjects\\Quest-Kill-Task\\neoforge\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dquestkilltask%%C:\\Users\\renpi\\IdeaProjects\\Quest-Kill-Task\\neoforge\\bin\\main;questkilltask%%C:\\Users\\renpi\\IdeaProjects\\Quest-Kill-Task\\neoforge\\bin\\test"
+      ],
+      "cwd": "${workspaceFolder}\\neoforge\\runs\\server",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
 }

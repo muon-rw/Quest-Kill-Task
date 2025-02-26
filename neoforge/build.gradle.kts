@@ -101,30 +101,22 @@ publishMods {
     file.set(tasks.named<Jar>("jar").get().archiveFile)
     modLoaders.add("neoforge")
     changelog = rootProject.file("CHANGELOG.md").readText()
-    displayName = "v${Versions.MOD} (NeoForge ${Versions.MINECRAFT})"
+    displayName = "Neoforge-${Versions.MOD}+${Versions.MINECRAFT})"
     version = "${Versions.MOD}+${Versions.MINECRAFT}-neoforge"
     type = STABLE
 
     curseforge {
         projectId = Properties.CURSEFORGE_PROJECT_ID
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        accessToken = providers.environmentVariable("CF_TOKEN")
 
         minecraftVersions.add(Versions.MINECRAFT)
         javaVersions.add(JavaVersion.VERSION_21)
 
         clientRequired = true
         serverRequired = true
-    }
 
-    modrinth {
-        projectId = Properties.MODRINTH_PROJECT_ID
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-
-        minecraftVersions.add(Versions.MINECRAFT)
-    }
-
-    github {
-        accessToken = providers.environmentVariable("GITHUB_TOKEN")
-        parent(project(":common").tasks.named("publishGithub"))
+        requires {
+            slug = "ftb-quests-forge"
+        }
     }
 }
