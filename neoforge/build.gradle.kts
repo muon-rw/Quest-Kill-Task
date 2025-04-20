@@ -31,18 +31,30 @@ repositories {
         }
     }
     maven {
-        url = uri("https://maven.saps.dev/releases")
+        url = uri("https://maven.ftb.dev/snapshots")
         content {
             includeGroup("dev.latvian.mods")
             includeGroup("dev.ftb.mods")
         }
     }
+    maven {
+        url = uri("https://maven.ftb.dev/releases")
+        content {
+            includeGroup("dev.latvian.mods")
+            includeGroup("dev.ftb.mods")
+        }
+    }
+    maven("https://code.redspace.io/releases")
+    maven("https://code.redspace.io/snapshots")
 }
 
 dependencies {
     implementation("dev.ftb.mods:ftb-quests-neoforge:${Versions.FTB_QUESTS}")
     implementation("dev.ftb.mods:ftb-library-neoforge:${Versions.FTB_LIBRARY}")
     implementation("dev.ftb.mods:ftb-teams-neoforge:${Versions.FTB_TEAMS}")
+
+
+    compileOnly("io.redspace:irons_spellbooks:${Versions.IRONS_SPELLS}")
 }
 
 neoForge {

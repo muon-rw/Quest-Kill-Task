@@ -33,7 +33,14 @@ repositories {
         }
     }
     maven {
-        url = uri("https://maven.saps.dev/releases")
+        url = uri("https://maven.ftb.dev/snapshots")
+        content {
+            includeGroup("dev.latvian.mods")
+            includeGroup("dev.ftb.mods")
+        }
+    }
+    maven {
+        url = uri("https://maven.ftb.dev/releases")
         content {
             includeGroup("dev.latvian.mods")
             includeGroup("dev.ftb.mods")
@@ -53,6 +60,8 @@ dependencies {
     modImplementation("dev.ftb.mods:ftb-quests-fabric:${Versions.FTB_QUESTS}")
     modImplementation("dev.ftb.mods:ftb-library-fabric:${Versions.FTB_LIBRARY}")
     modImplementation("dev.ftb.mods:ftb-teams-fabric:${Versions.FTB_TEAMS}")
+
+    modCompileOnly("curse.maven:spell-engine-807653:6441517")
 }
 
 loom {

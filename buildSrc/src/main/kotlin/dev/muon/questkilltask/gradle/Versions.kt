@@ -1,20 +1,20 @@
 package dev.muon.questkilltask.gradle
 
 object Versions {
-    const val MOD = "0.2.0"
+    const val MOD = "0.3.0"
 
     const val MINECRAFT = "1.21.1"
     const val PARCHMENT_MINECRAFT = "1.21"
     const val NEOFORM = "$MINECRAFT-20240808.144430"
     const val PARCHMENT = "2024.07.28"
 
-    const val FABRIC_API = "0.106.0+1.21.1"
-    const val FABRIC_LOADER = "0.16.9"
+    const val FABRIC_API = "0.115.4+1.21.1"
+    const val FABRIC_LOADER = "0.16.13"
     const val MOD_MENU = "11.0.3"
     const val FABRIC_LOADER_RANGE = ">=0.15"
     const val FABRIC_MINECRAFT_RANGE = ">=1.21"
 
-    const val NEOFORGE = "21.1.90"
+    const val NEOFORGE = "21.1.155"
     const val NEOFORGE_LOADER_RANGE = "[4,)"
     const val NEOFORGE_MINECRAFT_RANGE = "[1.21,)"
 
@@ -28,4 +28,7 @@ object Versions {
     const val FTB_LIBRARY = "2101.1.4"
 
     const val ACCESSORIES = "1.1.0-beta.7+1.21.1"
+
+
+    const val IRONS_SPELLS = "1.21.1-3.11.0"
 }
