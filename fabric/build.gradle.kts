@@ -117,7 +117,7 @@ publishMods {
     file.set(tasks.named<Jar>("remapJar").get().archiveFile)
     modLoaders.add("fabric")
     changelog = rootProject.file("CHANGELOG.md").readText()
-    displayName = "Fabric-${Versions.MOD}+${Versions.MINECRAFT})"
+    displayName = "Fabric-${Versions.MOD}+${Versions.MINECRAFT}"
     version = "${Versions.MOD}+${Versions.MINECRAFT}-fabric"
     type = STABLE
 

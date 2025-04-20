@@ -113,7 +113,7 @@ publishMods {
     file.set(tasks.named<Jar>("jar").get().archiveFile)
     modLoaders.add("neoforge")
     changelog = rootProject.file("CHANGELOG.md").readText()
-    displayName = "Neoforge-${Versions.MOD}+${Versions.MINECRAFT})"
+    displayName = "Neoforge-${Versions.MOD}+${Versions.MINECRAFT}"
     version = "${Versions.MOD}+${Versions.MINECRAFT}-neoforge"
     type = STABLE
 
