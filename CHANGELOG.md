@@ -1,3 +1,6 @@
+## 0.3.1
+- Add guard clause in case other mods somehow add null damage sources
+
 ## 0.3.0
 - Added Heal contribution tracking for Spell Engine (Fabric) and Iron's Spellbooks (NeoForge)
 

@@ -35,8 +35,10 @@ public class FTBQuestsEventHandlerMixin {
     // TODO: Clean up, some duplicate logic is being run
     @Inject(method = "playerKill", at = @At("HEAD"), cancellable = true)
     private void onPlayerKill(LivingEntity entity, DamageSource source, CallbackInfoReturnable<EventResult> cir) {
-        if ((entity.level().isClientSide) || (source.getEntity() != null && source.getEntity().level().isClientSide)) return;
-
+        if (source == null || entity.level().isClientSide || source.getEntity() == null || source.getEntity().level().isClientSide) {
+            cir.setReturnValue(EventResult.pass());
+            return;
+        }
         if (questKillTask$questProcessor == null) {
             questKillTask$questProcessor = new QuestProcessor();
         }
