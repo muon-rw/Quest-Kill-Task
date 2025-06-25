@@ -54,9 +54,9 @@ dependencies {
 
     //compileOnly("io.wispforest:accessories-common:${Versions.ACCESSORIES}-mojmap")
 
-    compileOnly("dev.ftb.mods:ftb-library:${Versions.FTB_LIBRARY}")
-    compileOnly("dev.ftb.mods:ftb-teams:${Versions.FTB_TEAMS}")
-    compileOnly("dev.ftb.mods:ftb-quests:${Versions.FTB_QUESTS}")
+    //compileOnly("dev.ftb.mods:ftb-library:${Versions.FTB_LIBRARY}")
+    //compileOnly("dev.ftb.mods:ftb-teams:${Versions.FTB_TEAMS}")
+    //compileOnly("dev.ftb.mods:ftb-quests:${Versions.FTB_QUESTS}")
 }
 
 configurations {
