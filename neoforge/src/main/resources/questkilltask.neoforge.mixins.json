@@ -3,12 +3,8 @@
   "minVersion": "0.8",
   "package": "dev.muon.questkilltask.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "FTBQuestsEventHandlerMixin",
-    "BaseQuestFileMixin"
-  ],
-  "client": [
-  ],
+  "mixins": [],
+  "client": [],
   "server": [],
   "injectors": {
     "defaultRequire": 1

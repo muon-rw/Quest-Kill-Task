@@ -1,5 +1,6 @@
 package dev.muon.questkilltask;
 
+import dev.ftb.mods.ftblibrary.platform.Platform;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.quest.task.KillTask;
@@ -7,10 +8,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class QuestProcessor {
-    // TODO: Clean this up, some duplicate logic happening
     private static List<KillTask> killTasks;
 
     public QuestProcessor() {
@@ -21,8 +24,9 @@ public class QuestProcessor {
     }
 
     private void initKillTasks() {
-        if (killTasks == null && ServerQuestFile.INSTANCE != null) {
-            killTasks = ServerQuestFile.INSTANCE.collect(KillTask.class);
+        ServerQuestFile instance = ServerQuestFile.getInstance();
+        if (killTasks == null && instance != null) {
+            killTasks = instance.collect(KillTask.class);
         }
     }
 
@@ -31,27 +35,21 @@ public class QuestProcessor {
             return false;
         }
 
-        if (killTasks == null && ServerQuestFile.INSTANCE != null) {
-            killTasks = ServerQuestFile.INSTANCE.collect(KillTask.class);
-        }
+        initKillTasks();
 
         if (killTasks == null || killTasks.isEmpty()) {
             return false;
         }
-
         DamageTracker.KillContributors contributors = DamageTracker.getKillContributors(entity);
         boolean hasContributors = !contributors.damagers().isEmpty() ||
                 !contributors.healers().isEmpty() ||
                 !contributors.tanks().isEmpty();
 
-        if (!hasContributors) {
-            return false;
-        }
-        return true;
+        return hasContributors;
     }
 
     public ServerQuestFile getQuestFile() {
-        ServerQuestFile questFile = ServerQuestFile.INSTANCE;
+        ServerQuestFile questFile = ServerQuestFile.getInstance();
         if (questFile == null) {
             QuestKillTask.LOG.warn("Could not get Server Quest File instance!");
             return null;
@@ -66,10 +64,21 @@ public class QuestProcessor {
         return questFile;
     }
 
-    public void processDamagingTeams(LivingEntity entity, ServerQuestFile questFile) {
+    public void processDamagingTeams(LivingEntity entity, ServerQuestFile questFile, DamageSource source) {
         Set<UUID> processedTeams = new HashSet<>();
-        DamageTracker.KillContributors contributors = DamageTracker.getKillContributors(entity);
 
+        // FTB's own onPlayerKilledEntity will credit the killer's team for direct player kills
+        // (matching this exact gate). Pre-mark that team so our contributor loop skips it —
+        // FTB stays in the call chain (mod compat preserved), no team gets +2.
+        if (source != null && source.getEntity() instanceof ServerPlayer killer
+                && !Platform.get().misc().isFakePlayer(killer)) {
+            TeamData killerTeam = questFile.getOrCreateTeamData(killer.getUUID());
+            if (killerTeam != null && !killerTeam.isLocked()) {
+                processedTeams.add(killerTeam.getTeamId());
+            }
+        }
+
+        DamageTracker.KillContributors contributors = DamageTracker.getKillContributors(entity);
         Set<UUID> allContributors = new HashSet<>();
         allContributors.addAll(contributors.damagers());
         allContributors.addAll(contributors.healers());
@@ -87,7 +96,7 @@ public class QuestProcessor {
             return;
         }
 
-        TeamData playerTeam = questFile.getOrCreateTeamData(player);
+        TeamData playerTeam = questFile.getOrCreateTeamData(player.getUUID());
         if (!isValidTeam(playerTeam)) {
             return;
         }
@@ -100,10 +109,7 @@ public class QuestProcessor {
     }
 
     private boolean isValidTeam(TeamData playerTeam) {
-        if (playerTeam == null || playerTeam.isLocked()) {
-            return false;
-        }
-        return true;
+        return playerTeam != null && !playerTeam.isLocked();
     }
 
     private void updateTeamKillTasks(TeamData team, LivingEntity entity) {

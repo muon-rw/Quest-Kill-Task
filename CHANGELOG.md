@@ -1,3 +1,7 @@
+## 0.4.0
+- Port to 26.1.2
+- Clean up application logic a bit for better compatibility
+
 ## 0.3.1
 - Add guard clause in case other mods somehow add null damage sources
 

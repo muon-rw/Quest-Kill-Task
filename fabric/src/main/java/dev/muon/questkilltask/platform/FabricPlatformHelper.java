@@ -1,21 +1,24 @@
 package dev.muon.questkilltask.platform;
 
+import dev.muon.questkilltask.platform.services.IPlatformHelper;
 import net.fabricmc.loader.api.FabricLoader;
 
-public class ExamplePlatformHelperFabric implements ExamplePlatformHelper {
+public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
-    public Platform getPlatform() {
-        return Platform.FABRIC;
+    public String getPlatformName() {
+        return "Fabric";
     }
 
     @Override
     public boolean isModLoaded(String modId) {
+
         return FabricLoader.getInstance().isModLoaded(modId);
     }
 
     @Override
     public boolean isDevelopmentEnvironment() {
+
         return FabricLoader.getInstance().isDevelopmentEnvironment();
     }
 }

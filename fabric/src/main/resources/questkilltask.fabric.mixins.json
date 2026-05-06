@@ -4,12 +4,8 @@
   "package": "dev.muon.questkilltask.mixin",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "FTBQuestsEventHandlerMixin",
-    "BaseQuestFileMixin"
-  ],
-  "client": [
-  ],
+  "mixins": [],
+  "client": [],
   "server": [],
   "injectors": {
     "defaultRequire": 1

@@ -1,22 +1,26 @@
 package dev.muon.questkilltask.platform;
 
+import dev.muon.questkilltask.platform.services.IPlatformHelper;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 
-public class ExamplePlatformHelperNeoForge implements ExamplePlatformHelper {
+public class NeoForgePlatformHelper implements IPlatformHelper {
 
     @Override
-    public Platform getPlatform() {
-        return Platform.NEOFORGE;
+    public String getPlatformName() {
+
+        return "NeoForge";
     }
 
     @Override
     public boolean isModLoaded(String modId) {
+
         return ModList.get().isLoaded(modId);
     }
 
     @Override
     public boolean isDevelopmentEnvironment() {
-        return !FMLLoader.isProduction();
+
+        return !FMLLoader.getCurrent().isProduction();
     }
 }
