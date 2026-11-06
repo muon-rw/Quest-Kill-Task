@@ -1,7 +1,7 @@
 package dev.muon.questkilltask.gradle
 
 object Versions {
-    const val MOD = "0.3.1"
+    const val MOD = "0.4.0"
 
     const val MINECRAFT = "1.21.1"
     const val PARCHMENT_MINECRAFT = "1.21"
@@ -23,9 +23,9 @@ object Versions {
 
     const val JAVA = 21
 
-    const val FTB_QUESTS = "2101.1.0"
-    const val FTB_TEAMS = "2101.1.0"
-    const val FTB_LIBRARY = "2101.1.4"
+    const val FTB_QUESTS = "2101.1.38"
+    const val FTB_TEAMS = "2101.1.12"
+    const val FTB_LIBRARY = "2101.1.39"
 
     const val ACCESSORIES = "1.1.0-beta.7+1.21.1"
 

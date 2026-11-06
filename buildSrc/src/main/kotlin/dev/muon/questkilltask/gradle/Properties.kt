@@ -1,7 +1,7 @@
 package dev.muon.questkilltask.gradle
 
 object Properties {
-    const val GROUP = "dev.muon"
+    const val GROUP = "dev.muon.questkilltask"
     const val MOD_NAME = "Quest Kill Task"
     const val ARCHIVES_NAME = "Quest-Kill-Task"
     const val MOD_ID = "questkilltask"

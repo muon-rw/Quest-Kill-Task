@@ -1,5 +1,6 @@
 import dev.muon.questkilltask.gradle.Properties
 import dev.muon.questkilltask.gradle.Versions
+import me.modmuss50.mpp.PublishModTask
 import net.fabricmc.loom.task.RemapJarTask
 import org.gradle.jvm.tasks.Jar
 
@@ -58,7 +59,10 @@ dependencies {
     modLocalRuntime("com.terraformersmc:modmenu:${Versions.MOD_MENU}")
 
     modImplementation("dev.ftb.mods:ftb-quests-fabric:${Versions.FTB_QUESTS}")
-    modImplementation("dev.ftb.mods:ftb-library-fabric:${Versions.FTB_LIBRARY}")
+    // FTB Library's Amecs dependency is only published on Siphalor's maven, and we don't use FTB keybinds.
+    modImplementation("dev.ftb.mods:ftb-library-fabric:${Versions.FTB_LIBRARY}") {
+        exclude(module = "amecs-key-modifiers-mc1.21.1")
+    }
     modImplementation("dev.ftb.mods:ftb-teams-fabric:${Versions.FTB_TEAMS}")
 
     modCompileOnly("curse.maven:spell-engine-807653:6441517")
@@ -68,9 +72,6 @@ loom {
     val aw = file("src/main/resources/${Properties.MOD_ID}.accesswidener");
     if (aw.exists())
         accessWidenerPath.set(aw)
-    mixin {
-        defaultRefmapName.set("${Properties.MOD_ID}.refmap.json")
-    }
     mods {
         register(Properties.MOD_ID) {
             sourceSet(sourceSets["main"])
@@ -128,11 +129,15 @@ publishMods {
         minecraftVersions.add(Versions.MINECRAFT)
         javaVersions.add(JavaVersion.VERSION_21)
 
-        clientRequired = true
-        serverRequired = true
+        client = true
+        server = true
 
         requires {
             slug = "ftb-quests-fabric"
         }
     }
+}
+
+tasks.withType<PublishModTask>().configureEach {
+    mustRunAfter(rootProject.subprojects.map { "${it.path}:publishAllPublicationsToMuonRepository" })
 }

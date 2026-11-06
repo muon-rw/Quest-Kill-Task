@@ -1,7 +1,9 @@
 package dev.muon.questkilltask.compat;
 
 import dev.muon.questkilltask.DamageTracker;
+import dev.muon.questkilltask.PlayerAttribution;
 import io.redspace.ironsspellbooks.api.events.SpellHealEvent;
+import io.redspace.ironsspellbooks.entity.mobs.IMagicSummon;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -10,6 +12,7 @@ public class IronSpellsEventHandler {
 
     public static void register() {
         NeoForge.EVENT_BUS.register(IronSpellsEventHandler.class);
+        PlayerAttribution.registerOwnerLookup(entity -> entity instanceof IMagicSummon summon ? summon.getSummoner() : null);
     }
 
     @SubscribeEvent

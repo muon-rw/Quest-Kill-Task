@@ -4,7 +4,6 @@
   "package": "dev.muon.questkilltask.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "FTBQuestsEventHandlerMixin",
     "BaseQuestFileMixin"
   ],
   "client": [

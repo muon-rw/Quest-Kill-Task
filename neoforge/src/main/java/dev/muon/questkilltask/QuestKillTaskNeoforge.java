@@ -12,6 +12,7 @@ public class QuestKillTaskNeoforge {
     public QuestKillTaskNeoforge(IEventBus eventBus) {
         QuestKillTask.init();
         QuestKillTask.setHelper(new ExamplePlatformHelperNeoForge());
+        QuestKillTask.setDeathListener(QuestProcessor::onEntityDeath);
 
         if (ModList.get().isLoaded("irons_spellbooks")) {
             QuestKillTask.LOG.info("Registering Iron's Spells 'n Spellbooks event handler.");

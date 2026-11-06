@@ -1,3 +1,7 @@
+## 0.4.0
+- Clean up application logic a bit for better compatibility
+- Fix kills not counting when the killing blow has no attacker (such as spells that deal part of their damage through an attacker-less damage source), even after players damaged the mob
+
 ## 0.3.1
 - Add guard clause in case other mods somehow add null damage sources
 

@@ -1,7 +1,12 @@
 import dev.muon.questkilltask.gradle.Properties
 import dev.muon.questkilltask.gradle.Versions
+import me.modmuss50.mpp.PublishModTask
 import org.apache.tools.ant.filters.LineContains
 import org.gradle.jvm.tasks.Jar
+import java.nio.file.FileSystemException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 
 plugins {
     id("conventions.loader")
@@ -124,11 +129,48 @@ publishMods {
         minecraftVersions.add(Versions.MINECRAFT)
         javaVersions.add(JavaVersion.VERSION_21)
 
-        clientRequired = true
-        serverRequired = true
+        client = true
+        server = true
 
         requires {
             slug = "ftb-quests-forge"
+        }
+    }
+}
+
+tasks.withType<PublishModTask>().configureEach {
+    mustRunAfter(rootProject.subprojects.map { "${it.path}:publishAllPublicationsToMuonRepository" })
+}
+
+tasks.register("sendToModpack") {
+    group = "publishing"
+    val jarTask = tasks.named<Jar>("jar")
+    dependsOn(jarTask)
+    val builtJar = jarTask.flatMap { it.archiveFile }
+    val modsDir = Path.of("C:\\Users\\renpi\\curseforge\\minecraft\\Instances\\Raven's High Fantasy\\mods")
+    val versionedPrefix = jarTask.get().archiveFileName.get().substringBefore(project.version.toString())
+    val deployedJar = modsDir.resolve("${versionedPrefix}dev.jar")
+    doLast {
+        // Writing into the deployed jar corrupts a running pack's open handle; replacing the file leaves the pack on the old one.
+        val staged = deployedJar.resolveSibling("${deployedJar.fileName}.staged")
+        Files.copy(builtJar.get().asFile.toPath(), staged, StandardCopyOption.REPLACE_EXISTING)
+        try {
+            Files.deleteIfExists(deployedJar)
+        } catch (e: FileSystemException) {
+            Files.delete(staged)
+            throw GradleException("${deployedJar.fileName} is held open by a running pack; close it and rerun", e)
+        }
+        Files.move(staged, deployedJar)
+        println("Mod JAR sent to modpack folder: ${deployedJar.fileName}")
+
+        // FML picks the published jar over the dev jar, so we disable the published one while testing.
+        Files.list(modsDir).use { files ->
+            files.filter { it.fileName.toString().startsWith(versionedPrefix) && it.fileName.toString().endsWith(".jar") && it != deployedJar }
+                .toList()
+                .forEach { versioned ->
+                    Files.move(versioned, versioned.resolveSibling("${versioned.fileName}.disabled"), StandardCopyOption.REPLACE_EXISTING)
+                    println("Disabled published jar: ${versioned.fileName}")
+                }
         }
     }
 }

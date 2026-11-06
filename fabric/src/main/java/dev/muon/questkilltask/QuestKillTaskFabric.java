@@ -8,6 +8,7 @@ public class QuestKillTaskFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         QuestKillTask.init();
+        QuestKillTask.setDeathListener(QuestProcessor::onEntityDeath);
 
         if (FabricLoader.getInstance().isModLoaded("spell_engine")) {
             QuestKillTask.LOG.info("Registering Spell Engine Heal event listener.");

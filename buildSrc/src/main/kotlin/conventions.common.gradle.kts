@@ -123,14 +123,14 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            artifactId = base.archivesName.get()
+            artifactId = "${Properties.MOD_ID}-${project.name}"
             from(components["java"])
         }
     }
     repositories {
         maven {
-            name = "Greenhouse"
-            url = uri("https://maven.greenhouseteam.dev/releases")
+            name = "Muon"
+            url = uri(System.getenv("MAVEN_URL") ?: "https://maven.muon.rip/releases")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
@@ -139,5 +139,11 @@ publishing {
                 create<BasicAuthentication>("basic")
             }
         }
+    }
+}
+
+plugins.withId("me.modmuss50.mod-publish-plugin") {
+    tasks.named("publishMods") {
+        dependsOn("publishAllPublicationsToMuonRepository")
     }
 }
