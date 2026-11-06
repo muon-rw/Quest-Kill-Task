@@ -1,7 +1,7 @@
 package dev.muon.questkilltask.gradle
 
 object Versions {
-    const val MOD = "0.4.0"
+    const val MOD = "0.4.1"
 
     const val MINECRAFT = "1.21.1"
     const val PARCHMENT_MINECRAFT = "1.21"
@@ -30,5 +30,5 @@ object Versions {
     const val ACCESSORIES = "1.1.0-beta.7+1.21.1"
 
 
-    const val IRONS_SPELLS = "1.21.1-3.11.0"
+    const val IRONS_SPELLS = "1.21.1-3.16.3"
 }

@@ -1,3 +1,6 @@
+## 0.4.1
+- Fix Iron's Spellbooks compat referencing an outdated version
+
 ## 0.4.0
 - Clean up application logic a bit for better compatibility
 - Fix kills not counting when the killing blow has no attacker (such as spells that deal part of their damage through an attacker-less damage source), even after players damaged the mob
