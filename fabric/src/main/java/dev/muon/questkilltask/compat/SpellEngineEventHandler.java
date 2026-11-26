@@ -1,7 +1,8 @@
 package dev.muon.questkilltask.compat;
 
 import dev.muon.questkilltask.DamageTracker;
-import dev.muon.questkilltask.QuestKillTask;
+import dev.muon.questkilltask.PlayerAttribution;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.spell_engine.api.spell.event.SpellEvents;
 
@@ -17,7 +18,10 @@ public class SpellEngineEventHandler {
         LivingEntity caster = args.caster();
         LivingEntity target = args.target();
         if (caster != null && target != null && !caster.level().isClientSide()) {
-            DamageTracker.trackHealing(target, caster.getUUID());
+            ServerPlayer healer = PlayerAttribution.resolvePlayer(caster);
+            if (healer != null) {
+                DamageTracker.trackHealing(target, healer.getUUID());
+            }
         }
     }
-} 
+}

@@ -1,3 +1,7 @@
+## 0.4.2
+- Fix entities that copied vanilla `die` without calling super not triggering any kill credit (like Cataclysm bosses)
+- Fix some tracking edge cases with players who contributed exclusively by healing other players
+
 ## 0.4.1
 - Fix Iron's Spellbooks compat referencing an outdated version
 

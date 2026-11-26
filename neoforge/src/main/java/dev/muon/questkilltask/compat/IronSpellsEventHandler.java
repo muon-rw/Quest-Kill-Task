@@ -4,6 +4,7 @@ import dev.muon.questkilltask.DamageTracker;
 import dev.muon.questkilltask.PlayerAttribution;
 import io.redspace.ironsspellbooks.api.events.SpellHealEvent;
 import io.redspace.ironsspellbooks.entity.mobs.IMagicSummon;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -20,7 +21,10 @@ public class IronSpellsEventHandler {
         LivingEntity caster = event.getEntity();
         LivingEntity target = event.getTargetEntity();
         if (caster != null && target != null && !caster.level().isClientSide()) {
-            DamageTracker.trackHealing(target, caster.getUUID());
+            ServerPlayer healer = PlayerAttribution.resolvePlayer(caster);
+            if (healer != null) {
+                DamageTracker.trackHealing(target, healer.getUUID());
+            }
         }
     }
-} 
+}

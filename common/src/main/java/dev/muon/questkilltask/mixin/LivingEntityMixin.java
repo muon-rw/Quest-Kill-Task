@@ -23,9 +23,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class LivingEntityMixin {
 
     /**
-     * Runs for every death, including ones with no attacker, so damagers, healers and tanks get credit without
-     * relying on the killing blow. We wait for the {@code dead = true} store rather than HEAD so a death that
-     * NeoForge's LivingDeathEvent cancels (totems, revives, boss phases) or a repeat {@code die} call is ignored.
+     * Runs for deaths that go through LivingEntity#die, including ones with no attacker, so damagers, healers, and
+     * tanks get credit without relying on the killing blow. We wait for the {@code dead = true} store rather than HEAD
+     * so canceled deaths (totems, revives, boss phases) and repeat {@code die} calls are ignored. NeoForge also hooks
+     * LivingDeathEvent for modded entities that override {@code die} without calling {@code super.die}; clearing
+     * tracking on the first hit prevents double credit.
      */
     @Inject(method = "die", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;dead:Z", opcode = Opcodes.PUTFIELD))
     private void questKillTask$creditContributorsOnDeath(DamageSource source, CallbackInfo ci) {
@@ -38,7 +40,7 @@ public class LivingEntityMixin {
     @Inject(method = "hurt", at = @At("HEAD"))
     private void questKillTask$trackDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity victim = (LivingEntity) (Object) this;
-        if (victim.level().isClientSide()) {
+        if (victim.level().isClientSide() || victim.isDeadOrDying()) {
             return;
         }
 

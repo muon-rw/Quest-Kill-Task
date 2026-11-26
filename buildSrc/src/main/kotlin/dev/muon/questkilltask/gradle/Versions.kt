@@ -1,7 +1,7 @@
 package dev.muon.questkilltask.gradle
 
 object Versions {
-    const val MOD = "0.4.1"
+    const val MOD = "0.4.2"
 
     const val MINECRAFT = "1.21.1"
     const val PARCHMENT_MINECRAFT = "1.21"

@@ -4,6 +4,7 @@
   "package": "dev.muon.questkilltask.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "LivingEntityAccessor",
     "LivingEntityMixin"
   ],
   "client": [

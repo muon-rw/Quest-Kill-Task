@@ -4,29 +4,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class DamageTracker {
-    private static class WeakSet<T> extends WeakHashMap<T, Boolean> {
-        public boolean add(T element) {
-            return put(element, Boolean.TRUE) == null;
-        }
-
-        public Set<T> toStrongSet() {
-            return new HashSet<>(keySet());
-        }
-
-        public boolean contains(Object o) {
-            return containsKey(o);
-        }
-
-        public Stream<T> stream() {
-            return keySet().stream();
-        }
-    }
-    private static final Map<LivingEntity, WeakSet<UUID>> DAMAGE_CONTRIBUTORS = new WeakHashMap<>();
-    private static final Map<LivingEntity, WeakSet<UUID>> DAMAGE_RECEIVERS = new WeakHashMap<>();
-    private static final Map<LivingEntity, WeakSet<UUID>> HEAL_CONTRIBUTORS = new WeakHashMap<>();
+    private static final Map<LivingEntity, Set<UUID>> DAMAGE_CONTRIBUTORS = new WeakHashMap<>();
+    private static final Map<LivingEntity, Set<UUID>> DAMAGE_RECEIVERS = new WeakHashMap<>();
+    private static final Map<UUID, Map<UUID, Long>> HEAL_CONTRIBUTORS = new HashMap<>();
     private static final Map<LivingEntity, Long> LAST_INTERACTION_TIME = new WeakHashMap<>();
 
     private static final long INTERACTION_TIMEOUT = 60000L;
@@ -37,7 +19,7 @@ public class DamageTracker {
         long currentTime = System.currentTimeMillis();
         attemptCleanup(currentTime);
 
-        DAMAGE_CONTRIBUTORS.computeIfAbsent(victim, k -> new WeakSet<>()).add(contributorId);
+        DAMAGE_CONTRIBUTORS.computeIfAbsent(victim, k -> new HashSet<>()).add(contributorId);
         LAST_INTERACTION_TIME.put(victim, currentTime);
         QuestKillTask.LOG.debug("Tracked damage from contributor {} to entity {}", contributorId, victim);
     }
@@ -46,18 +28,21 @@ public class DamageTracker {
         long currentTime = System.currentTimeMillis();
         attemptCleanup(currentTime);
 
-        DAMAGE_RECEIVERS.computeIfAbsent(attacker, k -> new WeakSet<>()).add(victimId);
+        DAMAGE_RECEIVERS.computeIfAbsent(attacker, k -> new HashSet<>()).add(victimId);
         LAST_INTERACTION_TIME.put(attacker, currentTime);
         QuestKillTask.LOG.debug("Tracked damage received by {} from entity {}", victimId, attacker);
     }
 
     public static void trackHealing(LivingEntity target, UUID healerId) {
+        if (!(target instanceof ServerPlayer)) {
+            return;
+        }
+
         long currentTime = System.currentTimeMillis();
         attemptCleanup(currentTime);
 
-        HEAL_CONTRIBUTORS.computeIfAbsent(target, k -> new WeakSet<>()).add(healerId);
-        LAST_INTERACTION_TIME.put(target, currentTime);
-        QuestKillTask.LOG.debug("Tracked healing from {} to entity {}", healerId, target);
+        HEAL_CONTRIBUTORS.computeIfAbsent(target.getUUID(), k -> new HashMap<>()).put(healerId, currentTime);
+        QuestKillTask.LOG.debug("Tracked healing from {} to player {}", healerId, target);
     }
 
     private static void attemptCleanup(long currentTime) {
@@ -76,8 +61,16 @@ public class DamageTracker {
                 LivingEntity entity = entry.getKey();
                 DAMAGE_CONTRIBUTORS.remove(entity);
                 DAMAGE_RECEIVERS.remove(entity);
-                HEAL_CONTRIBUTORS.remove(entity);
                 it.remove();
+            }
+        }
+
+        Iterator<Map.Entry<UUID, Map<UUID, Long>>> healIt = HEAL_CONTRIBUTORS.entrySet().iterator();
+        while (healIt.hasNext()) {
+            Map<UUID, Long> healers = healIt.next().getValue();
+            healers.entrySet().removeIf(entry -> currentTime - entry.getValue() > INTERACTION_TIMEOUT);
+            if (healers.isEmpty()) {
+                healIt.remove();
             }
         }
     }
@@ -99,34 +92,33 @@ public class DamageTracker {
             return new KillContributors(Set.of(), Set.of(), Set.of());
         }
 
-        Set<UUID> damagers = DAMAGE_CONTRIBUTORS.getOrDefault(entity, new WeakSet<>()).toStrongSet();
-        Set<UUID> tanks = DAMAGE_RECEIVERS.getOrDefault(entity, new WeakSet<>()).toStrongSet();
+        Set<UUID> damagers = new HashSet<>(DAMAGE_CONTRIBUTORS.getOrDefault(entity, Set.of()));
+        Set<UUID> tanks = new HashSet<>(DAMAGE_RECEIVERS.getOrDefault(entity, Set.of()));
         Set<UUID> healers = new HashSet<>();
 
-        WeakSet<UUID> healerCandidates = HEAL_CONTRIBUTORS.getOrDefault(entity, new WeakSet<>());
-        for (UUID damager : damagers) {
-            healers.addAll(
-                    healerCandidates.stream()
-                            .filter(healer -> hasHealedPlayer(healer, damager))
-                            .toList()
-            );
-        }
-
+        collectRecentHealers(damagers, currentTime, healers);
+        collectRecentHealers(tanks, currentTime, healers);
 
         return new KillContributors(damagers, healers, tanks);
     }
 
-    private static boolean hasHealedPlayer(UUID healer, UUID target) {
-        return HEAL_CONTRIBUTORS.entrySet().stream()
-                .filter(entry -> entry.getKey() instanceof ServerPlayer)
-                .filter(entry -> entry.getKey().getUUID().equals(target))
-                .anyMatch(entry -> entry.getValue().contains(healer));
+    private static void collectRecentHealers(Set<UUID> participants, long currentTime, Set<UUID> outHealers) {
+        for (UUID participant : participants) {
+            Map<UUID, Long> healedBy = HEAL_CONTRIBUTORS.get(participant);
+            if (healedBy == null) {
+                continue;
+            }
+            for (Map.Entry<UUID, Long> entry : healedBy.entrySet()) {
+                if (currentTime - entry.getValue() <= INTERACTION_TIMEOUT) {
+                    outHealers.add(entry.getKey());
+                }
+            }
+        }
     }
 
     public static void clearEntityTracking(LivingEntity entity) {
         DAMAGE_CONTRIBUTORS.remove(entity);
         DAMAGE_RECEIVERS.remove(entity);
-        HEAL_CONTRIBUTORS.remove(entity);
         LAST_INTERACTION_TIME.remove(entity);
     }
 }
